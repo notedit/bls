@@ -560,7 +560,7 @@ Emitted when client send pong response to BLS.
 - **delay** `[number]` delay after BLS send ping request to client.
 - **recv_sum** `[number]` how many bytes recved from client totally.
 
-####Event:{customCommand}(trans_id, cmd_obj, data)
+#### Event:{customCommand}(trans_id, cmd_obj, data)
 --------------------
 
 Emitted when receive user custom command.
