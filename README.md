@@ -3,25 +3,29 @@ BLS is a rtmp server framework for Nodejs. This server is developed in libuv I/O
 
 -------------
 
-##Requirement
+## Requirement
 - support nodejs 6.9. nodejs 0.1x is no longer supported.
 - Linux 64 bit
 
-##Install
+## Install
+
 ```
 npm install bls
 ```
 
-##Features of RTMP
+## Features of RTMP
 
 - Not the full RTMP protocal is supported. But the basic function of live play has been realised.
 - BLS cache the last gop of a stream. So player can show video picture very quickly.
 - Only support H264/AAC.
 - One client can only publishs/plays one stream just now.
 
-##Example
-###SimpleServer
+## Example
+
+### SimpleServer
+
 A simple RTMP server. You can publish stream with ffmpeg, and play stream with flash/vlc/ffmpeg...
+
 ```javascript
 //simple_server.js
 
@@ -163,8 +167,9 @@ server.start_server(config, function(client){
     }, 5000);
 });
 ```
-###Cluster
+### Cluster
 A RTMP cluster with two hosts. The simple server upon runs as a source host. This edge server pull stream from source host.You can build more complex topo with BLS.
+
 ```javascript
 //test_edge_server.js
 
@@ -274,7 +279,8 @@ function pull_stream_from_src(stream_name, cb_func){
 }
 ```
 
-##Performance
+## Performance
+
 We test BLS's performance with many ffmpegs client connecting to BLS at a time pushing and pulling streams.
 One player plays one publisher, as a pair. With the number of pairs grows up, CPU idle is the main resource BLS takes. So we just forcus on usage of one CPU core. Result is shown below.
 
@@ -288,9 +294,9 @@ One player plays one publisher, as a pair. With the number of pairs grows up, CP
 | 2000 | 80% |
 | 3000 | 99% |
 
-##API
+## API
 
-###Function: start_server(config, cb(client))
+### Function: start_server(config, cb(client))
 --------------------
 
 start a rtmp server. If start and listen fail, this process will just exit.
@@ -308,7 +314,7 @@ configure items:
 | port| yes | number | the port server listens to |
 | ping_pong_time | no | number | the interval seconds server sends ping package for detecting whether this client is alive or not. Default 10. |
 
-###Function:remote_connect(ip, port, cb(client))
+### Function:remote_connect(ip, port, cb(client))
 --------------------
 
 Create a TCP connection to another bls server.
@@ -335,22 +341,23 @@ bls.remote_connect("127.0.0.1", 8955, function(edge_connect){
 });
 ```
 
-###Var:MAX_BUFFER_LEN
+### Var:MAX_BUFFER_LEN
 --------------------
 
 Indicate the max size of command data.
 
-###Class:BlsClient
+### Class:BlsClient
 --------------------
 
 BlsClient instance stands for a client that connects to server. A lot of events can be catched from a client, and you can control this client through APIs. BlsClient inherits from Emitter.
 
-####BlsClient.prototype.accept(allow, code, descript)
+#### BlsClient.prototype.accept(allow, code, descript)
 --------------------
 
 Decide whether accept this client in RTMP protocol.
 - **allow** `[boolean]` true means accept, false means reject
 - **code** `[string]` RTMP connect reject code. If allow is true, code is  NetConnection.Connect.Success default. Otherwise it is [NetConnection.Connect.Error|NetConnection.Connect.Fail|...]
+
 - **descript** `[string]` description about rejection result.
 
 ```javascript
@@ -367,7 +374,7 @@ Decide whether accept this client in RTMP protocol.
     });
 ```
 
-####BlsClient.prototype.call(cmd_name, args_array, cb_func(result_flag, args))
+#### BlsClient.prototype.call(cmd_name, args_array, cb_func(result_flag, args))
 --------------------
 
 Send user custom command to client. If result is not needed, cb_func should be None.
@@ -377,12 +384,12 @@ Send user custom command to client. If result is not needed, cb_func should be N
 	- **result_flag** `[string]` "_result" or "_error" recv from client.
 	- **args** `[array]` result data recv from client
 	
-####BlsClient.prototype.close()
+#### BlsClient.prototype.close()
 --------------------
 
 Close this client connection.
 
-####BlsClient.prototype.edge(stream_name, cb())
+#### BlsClient.prototype.edge(stream_name, cb())
 --------------------
 
 This method is made for cluster. Local BLS can pull stream data from a remote BLS server as a source. Then player clients can play this stream from local BLS. The client must be producted from `remote_connect` function.
@@ -409,22 +416,22 @@ bls.remote_connect("127.0.0.1", 8956, function(edge_connect){
 });
 ```
 
-####BlsClient.prototype.get_aac_sh()
+#### BlsClient.prototype.get_aac_sh()
 --------------------
 
 return aac sequence header data recieved from client.
 
-####BlsClient.prototype.get_avc_sh()
+#### BlsClient.prototype.get_avc_sh()
 --------------------
 
 return avc sequence header data recieved from client.
 
-####BlsClient.prototype.is_closed()
+#### BlsClient.prototype.is_closed()
 --------------------
 
 return True if client is not alive.
 
-####BlsClient.prototype.play(trans_id, stream_name)
+#### BlsClient.prototype.play(trans_id, stream_name)
 --------------------
 
 Allow client to play one stream.
@@ -434,7 +441,7 @@ Allow client to play one stream.
 - **trans_id** `[number]` must be same with trans id in play event
 - **stream_name** `[number]` indicates which stream is passed to client. The stream_name must be same with the publish one. But it is not necessary same with stream name in play event.
 
-####BlsClient.prototype.publish(trans_id, stream_name)
+#### BlsClient.prototype.publish(trans_id, stream_name)
 --------------------
 
 Allow client to publish one stream
@@ -444,7 +451,7 @@ Allow client to publish one stream
 - **trans_id** `[number]` must be same with trans id in publish event.
 - **stream_name** `[number]` indicates the stream name to publish with this client.
 
-####BlsClient.prototype.push(stream_name, cb)
+#### BlsClient.prototype.push(stream_name, cb)
 --------------------
 
 This method is made for cluster. Local BLS can push stream data to a remote BLS server as a source. Then player clients can play this stream from remote BLS. The BLS client must be producted from `remote_connect` function.
@@ -452,7 +459,7 @@ This method is made for cluster. Local BLS can push stream data to a remote BLS 
 - **stream_name** `[string]` the name of stream you want to push to remote BLS. 
 - **cb** `[function]` called when push finish, which means players can play the stream name from remote BLS from now on.
 
-####BlsClient.prototype.result(result_flag, transid, args)
+#### BlsClient.prototype.result(result_flag, transid, args)
 --------------------
 
 Send result to client according to the command received from client.
@@ -475,12 +482,12 @@ Example:
     });
 ```
 
-####BlsClient.prototype.unpublish()
+#### BlsClient.prototype.unpublish()
 --------------------
 
 Client stop publishing stream.
 
-####BlsClient.prototype.enable_av_cb(cb(av_type, timestamp, is_sh, is_key, data))
+#### BlsClient.prototype.enable_av_cb(cb(av_type, timestamp, is_sh, is_key, data))
 --------------------
 
 You can get each audio/video frame from client with this method.
@@ -499,54 +506,54 @@ client.enable_av_cb(function(av_type, timestamp, is_sh, is_key, data){
 });
 ```
 
-####BlsClient.prototype.disable_av_cb()
+#### BlsClient.prototype.disable_av_cb()
 --------------------
 
 don't throw up audio/video data to js call back function.
 
-####Event:connect(trans_id, connect_info)
+#### Event:connect(trans_id, connect_info)
 --------------------
 
 Emitted when a client send RTMP connect command to BLS.
 - **trans_id** `[number]` rtmp protocol needs.
 - **connect_info** `[object]` connect information recieved from client.
 
-####Event:close(close_status)
+#### Event:close(close_status)
 --------------------
 
 Emitted when client leave.
 
-####Event:publish(trans_id, cmd_objs, stream_name)
+#### Event:publish(trans_id, cmd_objs, stream_name)
 --------------------
 
 Emitted when client wants to publish a stream
 
-####Event:play(trans_id, cmd_obj, stream_name)
+#### Event:play(trans_id, cmd_obj, stream_name)
 --------------------
 
 Emitted when client wants to play a stream
 
-####Event:play_stop_event()
+#### Event:play_stop_event()
 --------------------
 
 When a stream stop publishing, players to this source will get this event emitted.
 
-####Event:onMetaData(meta_data)
+#### Event:onMetaData(meta_data)
 --------------------
 
 Emitted when recieved meta data from client in process of publish stream.
 
-####Event:unplay()
+#### Event:unplay()
 --------------------
 
 Emitted when client stop play stream.
 
-####Event:unpublish()
+#### Event:unpublish()
 --------------------
 
 Emitted when client stop publish stream.
 
-####Event:ping_pong_request(delay, recv_sum)
+#### Event:ping_pong_request(delay, recv_sum)
 --------------------
 
 Emitted when client send pong response to BLS.
